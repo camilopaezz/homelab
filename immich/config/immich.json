@@ -9,9 +9,6 @@
       "Handlers": {
         "/": {
           "Proxy": "http://127.0.0.1:2283"
-        },
-        "/xyz/portainer": {
-          "Proxy": "http://127.0.0.1:9000"
         }
       }
     }
