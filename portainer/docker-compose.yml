@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     ports:
       - '9443:9443' # HTTPS web UI
+      - '9000:9000' # HTTP web UI
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # Access to Docker
       - portainer_data:/data # Persistent storage
