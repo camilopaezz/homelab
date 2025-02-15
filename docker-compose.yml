@@ -6,27 +6,35 @@
 # The compose file on main may not be compatible with the latest release.
 #
 
-name: immich
+name: homelab
 
 services:
-  immich-ts:
-    image: tailscale/tailscale:latest
-    container_name: immich-ts
-    hostname: immich
-    environment:
-      - TS_AUTHKEY=${TS_AUTHKEY}
-      - TS_SERVE_CONFIG=/config/immich.json
-      - TS_STATE_DIR=/var/lib/tailscale
-      - TS_USERSPACE=false
+  tsdproxy:
+    container_name: tsproxy
+    image: almeidapaulopt/tsdproxy:latest
     volumes:
-      - ${PWD}/immich-ts/state:/var/lib/tailscale
-      - ${PWD}/config:/config
-    devices:
-      - /dev/net/tun:/dev/net/tun
-    cap_add:
-      - net_admin
-    network_mode: host
+      - /var/run/docker.sock:/var/run/docker.sock
+      - datadir:/data
+      - ./proxy_config/:/config
     restart: unless-stopped
+    ports:
+      - '8080:8080'
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    ports:
+      - '9443:9443' # HTTPS web UI (for local)
+      - '9000:9000' # HTTP web UI (for tailscale)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Access to Docker
+      - portainer_data:/data # Persistent storage
+    labels:
+      tsdproxy.enable: 'true'
+      tsdproxy.name: 'portainer'
+      tsdproxy.container_port: 9000
+      tsdproxy.funnel: 'true'
   immich-server:
     container_name: immich_server
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
@@ -44,10 +52,13 @@ services:
     depends_on:
       - redis
       - database
-      - immich-ts
     restart: always
     healthcheck:
       disable: false
+    labels:
+      tsdproxy.enable: 'true'
+      tsdproxy.name: 'immich'
+      tsdproxy.funnel: 'true'
 
   immich-machine-learning:
     container_name: immich_machine_learning
@@ -105,3 +116,5 @@ services:
 
 volumes:
   model-cache:
+  datadir:
+  portainer_data:
