@@ -1,5 +1,9 @@
-library
-postgres
 .env
-data
-immich-ts
+
+library/
+postgres/
+calibre_library/
+cwa/
+vw-data/
+book_ingest/
+beszel_data/
