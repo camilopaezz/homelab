@@ -20,22 +20,6 @@ services:
     ports:
       - '8080:8080'
 
-  portainer:
-    image: portainer/portainer-ce:latest
-    container_name: portainer
-    restart: unless-stopped
-    ports:
-      - '9443:9443' # HTTPS web UI (for local)
-      - '9000:9000' # HTTP web UI (for tailscale)
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # Access to Docker
-      - portainer_data:/data # Persistent storage
-    labels:
-      tsdproxy.enable: 'true'
-      tsdproxy.name: 'portainer'
-      tsdproxy.container_port: 9000
-      tsdproxy.funnel: 'true'
-
   immich-server:
     container_name: immich_server
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
@@ -70,7 +54,7 @@ services:
     #   file: hwaccel.ml.yml
     #   service: cpu # set to one of [armnn, cuda, openvino, openvino-wsl] for accelerated inference - use the `-wsl` version for WSL2 where applicable
     volumes:
-      - model-cache:/cache
+      - /data/model-cache:/cache
     env_file:
       - .env
     restart: always
@@ -115,31 +99,6 @@ services:
       -c wal_compression=on
     restart: always
 
-  calibre-web-automated:
-    image: crocodilestick/calibre-web-automated:latest
-    container_name: calibre-web-automated
-    environment:
-      # Only change these if you know what you're doing
-      - PUID=1000
-      - PGID=1000
-      # Edit to match your current timezone https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-      - TZ=America/Bogota
-    volumes:
-      # CW users migrating should stop their existing CW instance, make a copy of the config folder, and bind that here to carry over all of their user settings ect.
-      - ./cwa:/config
-      # This is an ingest dir, NOT a library one. Anything added here will be automatically added to your library according to the settings you have configured in CWA Settings page. All files placed here are REMOVED AFTER PROCESSING
-      - ./book_ingest:/cwa-book-ingest
-      # If you don't have an existing library, CWA will automatically create one at the bind provided here
-      - ./calibre_library:/calibre-library
-    ports:
-      # Change the first number to change the port you want to access the Web UI, not the second
-      - 8083:8083
-    restart: unless-stopped
-    labels:
-      tsdproxy.enable: 'true'
-      tsdproxy.name: 'calibre'
-      tsdproxy.funnel: 'true'
-
   vaultwarden:
     image: vaultwarden/server:latest
     container_name: vaultwarden
@@ -147,76 +106,10 @@ services:
     #   - SIGNUPS_ALLOWED=false
     restart: unless-stopped
     volumes:
-      - ./vw-data/:/data/
+      - /docker/vw-data/:/data/
     ports:
       - 8082:80
     labels:
       tsdproxy.enable: 'true'
       tsdproxy.funnel: 'true'
       tsdproxy.name: 'vault'
-  auto-mcs:
-    command:
-      [
-        'auto-mcs-ttyd',
-        '-W',
-        '-t',
-        'disableLeaveAlert=true',
-        '-t',
-        'titleFixed=auto-mcs (docker)',
-        '-t',
-        'fontSize=20',
-        '-t',
-        'theme={"background": "#1A1A1A"}',
-        '-p',
-        '8080',
-        '-c',
-        '${AUTOMCS_USER}',
-        'tmux',
-        '-u',
-        '-2',
-        'new',
-        '-A',
-        '-s',
-        '-c',
-        './auto-mcs',
-      ]
-    image: macarooniman/auto-mcs:latest
-    container_name: auto-mcs
-    stdin_open: true
-    tty: true
-    restart: always
-    ports:
-      # ttyd web UI
-      - '8089:8080'
-      # Telepath API (auto-mcs)
-      - '7001:7001'
-      # Add more ports based on the servers you create
-      - '25565:25565'
-    volumes:
-      - auto-mcs-data:/root/.auto-mcs
-    labels:
-      tsdproxy.enable: 'true'
-      tsdproxy.container_port: 8080
-      tsdproxy.funnel: 'true'
-      tsdproxy.name: 'mcs'
-  beszel:
-    image: henrygd/beszel:latest
-    container_name: beszel
-    restart: unless-stopped
-    extra_hosts:
-      - host.docker.internal:host-gateway
-    ports:
-      - 8090:8090
-    volumes:
-      - ./beszel_data:/beszel_data
-    labels:
-      tsdproxy.enable: 'true'
-      tsdproxy.funnel: 'true'
-      tsdproxy.name: 'status'
-      tsdproxy.container_port: 8090
-
-volumes:
-  auto-mcs-data:
-  model-cache:
-  datadir:
-  portainer_data:
