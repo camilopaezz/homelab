@@ -14,7 +14,7 @@ services:
     image: almeidapaulopt/tsdproxy:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./docker/tsdproxy/data:/data
+      - /data/tsdproxy:/data
       - /docker/tsdproxy/:/config
     restart: unless-stopped
     ports:
