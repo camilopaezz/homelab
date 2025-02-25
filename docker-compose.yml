@@ -20,6 +20,26 @@ services:
     ports:
       - '8080:8080'
 
+  jellyfin:
+    container_name: jellyfin
+    image: jellyfin/jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Bogota
+    volumes:
+      - /docker/jellyfin:/config
+      - /data:/data
+    ports:
+      - 8096:8096
+    devices:
+      - /dev/dri:/dev/dri # QuickSync
+    restart: unless-stopped
+    labels:
+      tsdproxy.enable: 'true'
+      tsdproxy.name: 'jellyfin'
+      tsdproxy.funnel: 'true'
+
   immich-server:
     container_name: immich_server
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
