@@ -18,7 +18,7 @@ services:
       - ./proxy_config/:/config
     restart: unless-stopped
     ports:
-      - '8080:8080'
+      - "8080:8080"
 
   jellyfin:
     container_name: jellyfin
@@ -33,12 +33,13 @@ services:
     ports:
       - 8096:8096
     devices:
-      - /dev/dri:/dev/dri # QuickSync
+      - /dev/dri:/dev/dri
+      - /dev/renderD128:/dev/renderD128
     restart: unless-stopped
     labels:
-      tsdproxy.enable: 'true'
-      tsdproxy.name: 'jellyfin'
-      tsdproxy.funnel: 'true'
+      tsdproxy.enable: "true"
+      tsdproxy.name: "jellyfin"
+      tsdproxy.funnel: "true"
 
   immich-server:
     container_name: immich_server
@@ -53,7 +54,7 @@ services:
     env_file:
       - .env
     ports:
-      - '2283:2283'
+      - "2283:2283"
     depends_on:
       - redis
       - database
@@ -61,9 +62,9 @@ services:
     healthcheck:
       disable: false
     labels:
-      tsdproxy.enable: 'true'
-      tsdproxy.name: 'immich'
-      tsdproxy.funnel: 'true'
+      tsdproxy.enable: "true"
+      tsdproxy.name: "immich"
+      tsdproxy.funnel: "true"
 
   immich-machine-learning:
     container_name: immich_machine_learning
@@ -95,7 +96,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_DB: ${DB_DATABASE_NAME}
-      POSTGRES_INITDB_ARGS: '--data-checksums'
+      POSTGRES_INITDB_ARGS: "--data-checksums"
     volumes:
       # Do not edit the next line. If you want to change the database storage location on your system, edit the value of DB_DATA_LOCATION in the .env file
       - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
@@ -122,14 +123,39 @@ services:
   vaultwarden:
     image: vaultwarden/server:latest
     container_name: vaultwarden
-    # environment:
-    #   - SIGNUPS_ALLOWED=false
+    environment:
+      - SIGNUPS_ALLOWED=false
     restart: unless-stopped
     volumes:
       - /docker/vw-data/:/data/
     ports:
       - 8082:80
     labels:
-      tsdproxy.enable: 'true'
-      tsdproxy.funnel: 'true'
-      tsdproxy.name: 'vault'
+      tsdproxy.enable: "true"
+      tsdproxy.funnel: "true"
+      tsdproxy.name: "vault"
+
+  calibre-web-automated:
+    image: crocodilestick/calibre-web-automated:latest
+    container_name: calibre-web-automated
+    environment:
+      # Only change these if you know what you're doing
+      - PUID=1000
+      - PGID=1000
+      # Edit to match your current timezone https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+      - TZ=America/Bogota
+    volumes:
+      # CW users migrating should stop their existing CW instance, make a copy of the config folder, and bind that here to carry over all of their user settings ect.
+      - /data/cwa/config:/config
+      # This is an ingest dir, NOT a library one. Anything added here will be automatically added to your library according to the settings you have configured in CWA Settings page. All files placed here are REMOVED AFTER PROCESSING
+      - /data/cwa/book_ingest:/cwa-book-ingest
+      # If you don't have an existing library, CWA will automatically create one at the bind provided here
+      - /data/cwa/calibre_library:/calibre-library
+    ports:
+      # Change the first number to change the port you want to access the Web UI, not the second
+      - 8083:8083
+    restart: unless-stopped
+    labels:
+      tsdproxy.enable: "true"
+      tsdproxy.name: "calibre"
+      tsdproxy.funnel: "true"
