@@ -34,7 +34,7 @@ services:
       - 8096:8096
     devices:
       - /dev/dri:/dev/dri
-      - /dev/renderD128:/dev/renderD128
+      - /dev/dri/renderD128:/dev/dri/renderD128
     restart: unless-stopped
     labels:
       tsdproxy.enable: "true"
