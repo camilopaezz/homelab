@@ -151,7 +151,7 @@ services:
       - /data/cwa/book_ingest:/cwa-book-ingest
       # If you don't have an existing library, CWA will automatically create one at the bind provided here
       - /data/cwa/calibre_library:/calibre-library
-      - /data/cwa/gmail.json:/app/calibre-web/gmail.json
+      - /data/cwa/calibre-web:/app/calibre-web/
     ports:
       # Change the first number to change the port you want to access the Web UI, not the second
       - 8083:8083
