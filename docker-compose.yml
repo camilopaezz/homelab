@@ -28,7 +28,7 @@ services:
       - PGID=1000
       - TZ=America/Bogota
     volumes:
-      - /docker/jellyfin:/config
+      - /data/docker/jellyfin:/config
       - /data:/data
     ports:
       - 8096:8096
