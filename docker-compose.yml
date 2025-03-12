@@ -127,7 +127,7 @@ services:
       - SIGNUPS_ALLOWED=false
     restart: unless-stopped
     volumes:
-      - /docker/vw-data/:/data/
+      - /data/docker/vw-data/:/data/
     ports:
       - 8082:80
     labels:
