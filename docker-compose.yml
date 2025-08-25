@@ -205,3 +205,21 @@ services:
     networks:
       servarrnetwork:
         ipv4_address: 172.39.0.5
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      # - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /data/docker/bazarr:/config
+      - /data:/data
+    ports:
+      - 6767:6767
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.39.0.7
