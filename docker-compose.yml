@@ -119,9 +119,9 @@ services:
       - PUID=1000
       - PGID=1000
       # - TZ=${TZ}
-      - WEBUI_PORT=8080 # must match "qbittorrent web interface" port number in gluetun's service above
+      - WEBUI_PORT=8069 # must match "qbittorrent web interface" port number in gluetun's service above
     ports:
-      - 8069:8080
+      - 8069:8069
     volumes:
       - /data/docker/qbittorrent:/config
       - /data:/data
