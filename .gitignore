@@ -1,9 +1,4 @@
 .env
 
-library/
-postgres/
-calibre_library/
-cwa/
-vw-data/
-book_ingest/
-beszel_data/
+tsdproxy.yaml.key
+proxy_config/tsdproxy.yaml

@@ -16,6 +16,11 @@ networks:
         - subnet: 172.39.0.0/24
 
 services:
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   tsdproxy:
     container_name: tsproxy
     image: almeidapaulopt/tsdproxy:latest
@@ -47,10 +52,6 @@ services:
     restart: always
     healthcheck:
       disable: false
-    labels:
-      tsdproxy.enable: "true"
-      tsdproxy.name: "immich"
-      tsdproxy.funnel: "true"
 
   immich-machine-learning:
     container_name: immich_machine_learning
@@ -106,10 +107,6 @@ services:
       - /data/docker/vw-data/:/data/
     ports:
       - 8082:80
-    labels:
-      tsdproxy.enable: "true"
-      tsdproxy.funnel: "true"
-      tsdproxy.name: "vault"
 
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
@@ -134,6 +131,9 @@ services:
     networks:
       servarrnetwork:
         ipv4_address: 172.39.0.6
+    labels:
+      tsdproxy.enable: "true"
+      tsdproxy.name: "qbittorrent"
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
@@ -151,6 +151,9 @@ services:
     networks:
       servarrnetwork:
         ipv4_address: 172.39.0.2
+    labels:
+      tsdproxy.enable: "true"
+      tsdproxy.name: "prowlarr"
 
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
@@ -169,6 +172,9 @@ services:
     networks:
       servarrnetwork:
         ipv4_address: 172.39.0.3
+    labels:
+      tsdproxy.enable: "true"
+      tsdproxy.name: "sonarr"
 
   radarr:
     image: lscr.io/linuxserver/radarr:latest
@@ -187,6 +193,9 @@ services:
     networks:
       servarrnetwork:
         ipv4_address: 172.39.0.4
+    labels:
+      tsdproxy.enable: "true"
+      tsdproxy.name: "radarr"
 
   lidarr:
     container_name: lidarr
@@ -205,6 +214,9 @@ services:
     networks:
       servarrnetwork:
         ipv4_address: 172.39.0.5
+    labels:
+      tsdproxy.enable: "true"
+      tsdproxy.name: "lidarr"
 
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
@@ -223,3 +235,25 @@ services:
     networks:
       servarrnetwork:
         ipv4_address: 172.39.0.7
+    labels:
+      tsdproxy.enable: "true"
+      tsdproxy.name: "bazarr"
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=Asia/Tashkent
+      - PORT=5055 #optional
+    ports:
+      - 5055:5055
+    volumes:
+      - /path/to/appdata/config:/app/config
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
+    restart: unless-stopped
