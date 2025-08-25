@@ -115,8 +115,6 @@ services:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
     restart: unless-stopped
-    labels:
-      - deunhealth.restart.on.unhealthy=true
     environment:
       - PUID=1000
       - PGID=1000
@@ -135,7 +133,7 @@ services:
       timeout: 10s
     networks:
       servarrnetwork:
-        ipv4_address: 172.39.0.69
+        ipv4_address: 172.39.0.8
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
