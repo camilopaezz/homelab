@@ -123,7 +123,7 @@ services:
     ports:
       - 8069:8080
     volumes:
-      - ./qbittorrent:/config
+      - /data/docker/qbittorrent:/config
       - /data:/data
     healthcheck:
       test: ping -c 1 www.google.com || exit 1
@@ -146,7 +146,7 @@ services:
       - 9696:9696
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./prowlarr:/config
+      - /data/docker/prowlarr:/config
     restart: unless-stopped
     networks:
       servarrnetwork:
@@ -162,7 +162,7 @@ services:
       # - TZ=${TZ}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./sonarr:/config
+      - /data/docker/sonarr:/config
       - /data:/data
     ports:
       - 8989:8989
@@ -180,7 +180,7 @@ services:
       # - TZ=${TZ}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./radarr:/config
+      - /data/docker/radarr:/config
       - /data:/data
     ports:
       - 7878:7878
@@ -194,7 +194,7 @@ services:
     restart: unless-stopped
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./lidarr:/config
+      - /data/docker/lidarr:/config
       - /data:/data
     environment:
       - PUID=1000
