@@ -135,7 +135,7 @@ services:
       timeout: 10s
     networks:
       servarrnetwork:
-        ipv4_address: 172.39.0.1
+        ipv4_address: 172.39.0.69
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
