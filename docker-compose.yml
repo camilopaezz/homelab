@@ -88,22 +88,12 @@ services:
       - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
     healthcheck:
       test: >-
-        pg_isready --dbname="$${POSTGRES_DB}" --username="$${POSTGRES_USER}" || exit 1;
-        Chksum="$$(psql --dbname="$${POSTGRES_DB}" --username="$${POSTGRES_USER}" --tuples-only --no-align
-        --command='SELECT COALESCE(SUM(checksum_failures), 0) FROM pg_stat_database')";
-        echo "checksum failure count is $$Chksum";
-        [ "$$Chksum" = '0' ] || exit 1
+        pg_isready --dbname="$${POSTGRES_DB}" --username="$${POSTGRES_USER}" || exit 1; Chksum="$$(psql --dbname="$${POSTGRES_DB}" --username="$${POSTGRES_USER}" --tuples-only --no-align --command='SELECT COALESCE(SUM(checksum_failures), 0) FROM pg_stat_database')"; echo "checksum failure count is $$Chksum"; [ "$$Chksum" = '0' ] || exit 1
       interval: 5m
       start_interval: 30s
       start_period: 5m
     command: >-
-      postgres
-      -c shared_preload_libraries=vectors.so
-      -c 'search_path="$$user", public, vectors'
-      -c logging_collector=on
-      -c max_wal_size=2GB
-      -c shared_buffers=512MB
-      -c wal_compression=on
+      postgres -c shared_preload_libraries=vectors.so -c 'search_path="$$user", public, vectors' -c logging_collector=on -c max_wal_size=2GB -c shared_buffers=512MB -c wal_compression=on
     restart: always
 
   vaultwarden:
@@ -121,7 +111,7 @@ services:
       tsdproxy.funnel: "true"
       tsdproxy.name: "vault"
 
-qbittorrent:
+  qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
     restart: unless-stopped
@@ -147,7 +137,7 @@ qbittorrent:
       start_period: 20s
       timeout: 10s
 
-nzbget:
+  nzbget:
     image: lscr.io/linuxserver/nzbget:latest
     container_name: nzbget
     environment:
@@ -160,7 +150,7 @@ nzbget:
       - /data:/data
     restart: unless-stopped
 
-prowlarr:
+  prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
     environment:
@@ -172,7 +162,7 @@ prowlarr:
       - ./prowlarr:/config
     restart: unless-stopped
 
-sonarr:
+  sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
     restart: unless-stopped
@@ -190,7 +180,7 @@ sonarr:
       servarrnetwork:
         ipv4_address: 172.39.0.3
 
-radarr:
+  radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
     restart: unless-stopped
@@ -208,7 +198,7 @@ radarr:
       servarrnetwork:
         ipv4_address: 172.39.0.4
 
-lidarr:
+  lidarr:
     container_name: lidarr
     image: lscr.io/linuxserver/lidarr:latest
     restart: unless-stopped
@@ -226,7 +216,7 @@ lidarr:
       servarrnetwork:
         ipv4_address: 172.39.0.5
 
-bazarr:
+  bazarr:
     image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
     restart: unless-stopped
