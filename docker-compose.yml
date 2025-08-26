@@ -16,6 +16,23 @@ networks:
         - subnet: 172.39.0.0/24
 
 services:
+  jellyfin:
+    container_name: jellyfin
+    image: jellyfin/jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Bogota
+    volumes:
+      - /data/docker/jellyfin:/config
+      - /data:/data
+    ports:
+      - 8096:8096
+    devices:
+      - /dev/dri:/dev/dri
+      - /dev/dri/renderD128:/dev/dri/renderD128
+    restart: unless-stopped
+    
   watchtower:
     image: containrrr/watchtower
     volumes:
