@@ -16,22 +16,22 @@ networks:
         - subnet: 172.39.0.0/24
 
 services:
-  jellyfin:
-    container_name: jellyfin
-    image: jellyfin/jellyfin
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Bogota
-    volumes:
-      - /data/docker/jellyfin:/config
-      - /data:/data
-    ports:
-      - 8096:8096
-    devices:
-      - /dev/dri:/dev/dri
-      - /dev/dri/renderD128:/dev/dri/renderD128
-    restart: unless-stopped
+  # jellyfin:
+  #   container_name: jellyfin
+  #   image: jellyfin/jellyfin
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=America/Bogota
+  #   volumes:
+  #     - /data/docker/jellyfin:/config
+  #     - /data:/data
+  #   ports:
+  #     - 8096:8096
+  #   devices:
+  #     - /dev/dri:/dev/dri
+  #     - /dev/dri/renderD128:/dev/dri/renderD128
+  #   restart: unless-stopped
     
   watchtower:
     image: containrrr/watchtower
@@ -274,3 +274,20 @@ services:
       interval: 15s
       retries: 3
     restart: unless-stopped
+
+  flaresolverr:
+    # DockerHub mirror flaresolverr/flaresolverr:latest
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Europe/London
+    ports:
+      - "${PORT:-8191}:8191"
+    restart: unless-stopped
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.39.0.8
+    
