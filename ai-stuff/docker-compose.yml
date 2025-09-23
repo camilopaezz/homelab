@@ -4,7 +4,7 @@ services:
     volumes:
       - ./searxng:/etc/searxng:rw
     ports:
-      - 4000:8030
+      - 4069:8080
     restart: unless-stopped
   openwebui:
     image: ghcr.io/open-webui/open-webui:main
