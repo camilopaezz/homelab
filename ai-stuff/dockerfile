@@ -1,0 +1,12 @@
+FROM python:3.13.7-alpine
+
+WORKDIR /app
+
+COPY mcpo-config.json .
+EXPOSE 8000
+
+RUN apk update
+RUN apk add --no-cache nodejs npm
+RUN apk add uv
+
+CMD [ "uvx", "mcpo", "--config", "mcpo-config.json", "--port", "8000", "--api-key", "$MCPO_API_KEY" ]

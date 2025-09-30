@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "searxng": {
+      "command": "npx",
+      "args": ["-y", "mcp-searxng"],
+      "env": {
+        "SEARXNG_URL": "http://searxng:8080"
+      }
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    },
+    "ddg-search": {
+      "command": "uvx",
+      "args": ["duckduckgo-mcp-server"]
+    },
+    "mcp-compass": {
+      "command": "npx",
+      "args": ["-y", "@liuyoshio/mcp-compass"]
+    }
+  }
+}
