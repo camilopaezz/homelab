@@ -77,7 +77,7 @@ services:
     restart: always
 
   mcpo:
-    build: .
+    build: ./mcpo
     ports:
       - "8006:8000"
     depends_on:
