@@ -30,9 +30,10 @@ services:
       - 8096:8096
     restart: unless-stopped
 
-  jellyseerr:
-    image: fallenbagel/jellyseerr:latest
-    container_name: jellyseerr
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
+    container_name: seerr
     environment:
       - LOG_LEVEL=debug
       - TZ=Asia/Tashkent
@@ -40,7 +41,7 @@ services:
     ports:
       - 5055:5055
     volumes:
-      - /data/docker/jellyseerr:/app/config
+      - /data/docker/seerr:/app/config
     restart: unless-stopped
 
   watchtower:
