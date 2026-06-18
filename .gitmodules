@@ -1,0 +1,3 @@
+[submodule "hackstore-prowlarr"]
+	path = hackstore-prowlarr
+	url = https://github.com/camilopaezz/hackstore-prowlarr.git
