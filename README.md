@@ -25,7 +25,38 @@
 ### Automation & Monitoring
 - **watchtower** - Automatic Docker container updates
 
-## ToDo
+## Essential Commands
 
-- calibre-web - E-book management web app
-- lidarr - Music collection manager
+### Setup
+
+```bash
+cp .env.example .env   # then edit .env with your values
+```
+
+### Docker Compose
+
+```bash
+docker compose up -d              # start all services
+docker compose down               # stop all services
+docker compose logs -f <service>  # tail logs for a service
+docker compose ps                 # list running services
+docker compose restart <service>  # restart a single service
+```
+
+### hackstore-proxy (custom build)
+
+```bash
+docker compose build hackstore-proxy          # rebuild the proxy image
+docker compose up -d --build hackstore-proxy  # rebuild and restart
+docker compose up -d --build                  # rebuild everything and start
+```
+
+### hackstore-proxy (dev)
+
+```bash
+cd hackstore-prowlarr
+uv run pytest                  # run tests
+uv run ruff check .            # lint
+uv run ruff format .           # format
+python decrypt_url.py "<url>"  # decrypt an acortalink.net URL
+```
