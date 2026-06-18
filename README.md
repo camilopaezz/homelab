@@ -30,7 +30,8 @@
 ### Setup
 
 ```bash
-cp .env.example .env   # then edit .env with your values
+git submodule update --init --recursive   # clone hackstore-prowlarr submodule
+cp .env.example .env                       # then edit .env with your values
 ```
 
 ### Docker Compose
