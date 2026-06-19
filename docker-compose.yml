@@ -9,176 +9,180 @@
 name: homelab
 
 networks:
-    servarrnetwork:
-        name: servarrnetwork
-        ipam:
-            config:
-                - subnet: 172.39.0.0/24
+  servarrnetwork:
+    name: servarrnetwork
+    ipam:
+      config:
+        - subnet: 172.39.0.0/24
 
 services:
-    jellyfin:
-        container_name: jellyfin
-        image: jellyfin/jellyfin
-        environment:
-            - PUID=1000
-            - PGID=1000
-            - TZ=${TZ}
-        volumes:
-            - ${CONFIG_BASE}/jellyfin:/config
-            - /data:/data
-        ports:
-            - 8096:8096
-        restart: unless-stopped
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
+    ports:
+      - 9696:9696
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${CONFIG_BASE}/prowlarr:/config
+      - ./hackstore-prowlarr/hackstore.yml:/config/Definitions/Custom/hackstore.yml:ro
+    restart: unless-stopped
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.39.0.2
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${CONFIG_BASE}/sonarr:/config
+      - /data:/data
+    ports:
+      - 8989:8989
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.39.0.3
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${CONFIG_BASE}/radarr:/config
+      - /data:/data
+    ports:
+      - 7878:7878
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.39.0.4
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
+    container_name: seerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=${TZ}
+      - PORT=5055 #optional
+    ports:
+      - 5055:5055
+    volumes:
+      - ${CONFIG_BASE}/seerr:/app/config
+    restart: unless-stopped
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.39.0.5
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
+      - WEBUI_PORT=8069
+    ports:
+      - 8069:8069
+    volumes:
+      - ${CONFIG_BASE}/qbittorrent:/config
+      - /data:/data
+    healthcheck:
+      test: ping -c 1 www.google.com || exit 1
+      interval: 60s
+      retries: 3
+      start_period: 20s
+      timeout: 10s
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.39.0.6
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${CONFIG_BASE}/bazarr:/config
+      - /data:/data
+    ports:
+      - 6767:6767
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.39.0.7
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=${TZ}
+    ports:
+      - "${PORT:-8191}:8191"
+    restart: unless-stopped
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.39.0.8
 
-    seerr:
-        image: ghcr.io/seerr-team/seerr:latest
-        init: true
-        container_name: seerr
-        environment:
-            - LOG_LEVEL=debug
-            - TZ=${TZ}
-            - PORT=5055 #optional
-        ports:
-            - 5055:5055
-        volumes:
-            - ${CONFIG_BASE}/seerr:/app/config
-        restart: unless-stopped
+  hackstore-proxy:
+    build: ./hackstore-prowlarr
+    container_name: hackstore-proxy
+    restart: unless-stopped
+    environment:
+      - TMDB_API_KEY=${HACKSTORE_TMDB_API_KEY}
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.39.0.9
+  jellyfin:
+    container_name: jellyfin
+    image: jellyfin/jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG_BASE}/jellyfin:/config
+      - /data:/data
+    ports:
+      - 8096:8096
+    restart: unless-stopped
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.39.0.10
 
-    watchtower:
-        image: nickfedor/watchtower:latest
-        container_name: watchtower
-        restart: unless-stopped
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        environment:
-            - WATCHTOWER_CLEANUP=true
-            - WATCHTOWER_POLL_INTERVAL=86400
-            - TZ=${TZ}
-        labels:
-            - com.centurylinklabs.watchtower.enable=true
-    vaultwarden:
-        image: vaultwarden/server:latest
-        container_name: vaultwarden
-        environment:
-            - SIGNUPS_ALLOWED=false
-        restart: unless-stopped
-        volumes:
-            - ${CONFIG_BASE}/vw-data/:/data/
-        ports:
-            - 8082:80
-
-    qbittorrent:
-        image: lscr.io/linuxserver/qbittorrent:latest
-        container_name: qbittorrent
-        restart: unless-stopped
-        environment:
-            - PUID=1000
-            - PGID=1000
-            - TZ=${TZ}
-            - WEBUI_PORT=8069
-        ports:
-            - 8069:8069
-        volumes:
-            - ${CONFIG_BASE}/qbittorrent:/config
-            - /data:/data
-        healthcheck:
-            test: ping -c 1 www.google.com || exit 1
-            interval: 60s
-            retries: 3
-            start_period: 20s
-            timeout: 10s
-        networks:
-            servarrnetwork:
-                ipv4_address: 172.39.0.6
-    prowlarr:
-        image: lscr.io/linuxserver/prowlarr:latest
-        container_name: prowlarr
-        environment:
-            - PUID=1000
-            - PGID=1000
-            - TZ=${TZ}
-        ports:
-            - 9696:9696
-        volumes:
-            - /etc/localtime:/etc/localtime:ro
-            - ${CONFIG_BASE}/prowlarr:/config
-            - ./hackstore-prowlarr/hackstore.yml:/config/Definitions/Custom/hackstore.yml:ro
-        restart: unless-stopped
-        networks:
-            servarrnetwork:
-                ipv4_address: 172.39.0.2
-    sonarr:
-        image: lscr.io/linuxserver/sonarr:latest
-        container_name: sonarr
-        restart: unless-stopped
-        environment:
-            - PUID=1000
-            - PGID=1000
-            - TZ=${TZ}
-        volumes:
-            - /etc/localtime:/etc/localtime:ro
-            - ${CONFIG_BASE}/sonarr:/config
-            - /data:/data
-        ports:
-            - 8989:8989
-        networks:
-            servarrnetwork:
-                ipv4_address: 172.39.0.3
-    radarr:
-        image: lscr.io/linuxserver/radarr:latest
-        container_name: radarr
-        restart: unless-stopped
-        environment:
-            - PUID=1000
-            - PGID=1000
-            - TZ=${TZ}
-        volumes:
-            - /etc/localtime:/etc/localtime:ro
-            - ${CONFIG_BASE}/radarr:/config
-            - /data:/data
-        ports:
-            - 7878:7878
-        networks:
-            servarrnetwork:
-                ipv4_address: 172.39.0.4
-    bazarr:
-        image: lscr.io/linuxserver/bazarr:latest
-        container_name: bazarr
-        restart: unless-stopped
-        environment:
-            - PUID=1000
-            - PGID=1000
-            - TZ=${TZ}
-        volumes:
-            - /etc/localtime:/etc/localtime:ro
-            - ${CONFIG_BASE}/bazarr:/config
-            - /data:/data
-        ports:
-            - 6767:6767
-        networks:
-            servarrnetwork:
-                ipv4_address: 172.39.0.7
-    flaresolverr:
-        image: ghcr.io/flaresolverr/flaresolverr:latest
-        container_name: flaresolverr
-        environment:
-            - LOG_LEVEL=${LOG_LEVEL:-info}
-            - LOG_HTML=${LOG_HTML:-false}
-            - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
-            - TZ=${TZ}
-        ports:
-            - "${PORT:-8191}:8191"
-        restart: unless-stopped
-        networks:
-            servarrnetwork:
-                ipv4_address: 172.39.0.8
-
-    hackstore-proxy:
-        build: ./hackstore-prowlarr
-        container_name: hackstore-proxy
-        restart: unless-stopped
-        environment:
-            - TMDB_API_KEY=${HACKSTORE_TMDB_API_KEY}
-        networks:
-            servarrnetwork:
-                ipv4_address: 172.39.0.9
+  watchtower:
+    image: nickfedor/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=86400
+      - TZ=${TZ}
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    environment:
+      - SIGNUPS_ALLOWED=false
+    restart: unless-stopped
+    volumes:
+      - ${CONFIG_BASE}/vw-data/:/data/
+    ports:
+      - 8082:80
