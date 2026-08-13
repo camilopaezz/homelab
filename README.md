@@ -19,6 +19,9 @@
 ### Proxies
 - **hackstore-proxy** - Reverse proxy for hackstore.fo (built from submodule)
 
+### Bots
+- **tikitoki** - Telegram bot that downloads TikTok/Instagram/X posts as MP4 (`ghcr.io/camilopaezz/tikitoki:latest`, auto-updated by watchtower)
+
 ### Password Management
 - **vaultwarden** - Unofficial Bitwarden server implementation
 
@@ -32,6 +35,7 @@
 ```bash
 git submodule update --init --recursive   # clone hackstore-prowlarr submodule
 cp .env.example .env                       # then edit .env with your values
+mkdir -p ${CONFIG_BASE:-/data/docker}/tikitoki/cookies   # optional cookie files for TikTok/IG/X
 ```
 
 ### Docker Compose
@@ -60,4 +64,15 @@ uv run pytest                  # run tests
 uv run ruff check .            # lint
 uv run ruff format .           # format
 python decrypt_url.py "<url>"  # decrypt an acortalink.net URL
+```
+
+### tikitoki
+
+```bash
+# Put Netscape cookies.txt files under /data/docker/tikitoki/cookies/ (optional)
+# then set TIKTOKI_COOKIES_PATH=/app/cookies/cookies.txt
+# (and/or INSTAGRAM_COOKIES_PATH, TWITTER_COOKIES_PATH) in .env and restart:
+docker compose pull tikitoki
+docker compose up -d tikitoki
+docker compose logs -f tikitoki
 ```

@@ -147,6 +147,24 @@ services:
     networks:
       servarrnetwork:
         ipv4_address: 172.39.0.9
+  tikitoki:
+    image: ghcr.io/camilopaezz/tikitoki:latest
+    container_name: tikitoki
+    restart: unless-stopped
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - TIKTOKI_COOKIES_PATH=${TIKTOKI_COOKIES_PATH:-}
+      - INSTAGRAM_COOKIES_PATH=${INSTAGRAM_COOKIES_PATH:-}
+      - TWITTER_COOKIES_PATH=${TWITTER_COOKIES_PATH:-}
+      - OPERATOR_CHAT_ID=${OPERATOR_CHAT_ID:-}
+      - CONCURRENCY=${CONCURRENCY:-2}
+      - COOLDOWN_SECONDS=${COOLDOWN_SECONDS:-30}
+      - HOURLY_CAP=${HOURLY_CAP:-60}
+      - TARGET_SIZE_MB=${TARGET_SIZE_MB:-45}
+      - CROSSFADE_SECONDS=${CROSSFADE_SECONDS:-0.4}
+      - SILENT_SLIDE_SECONDS=${SILENT_SLIDE_SECONDS:-3}
+    volumes:
+      - ${CONFIG_BASE}/tikitoki/cookies:/app/cookies:ro
   jellyfin:
     container_name: jellyfin
     image: jellyfin/jellyfin
